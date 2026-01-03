@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Robot Graduation Project</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at center, #2b0033, #000);
+      overflow-x: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      color: white;
+    }
+
+    /* ===== LOGO ===== */
+    .college-logo {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      z-index: 5;
+    }
+    .college-logo img { width: 90px; }
+
+    /* ===== HERO ===== */
+    .hero {
+      display: flex;
+      height: 100vh;
+      padding: 0 8%;
+      align-items: center;
+    }
+
+    .hero-content {
+      width: 50%;
+      z-index: 2;
+    }
+
+    .hero-content h1 {
+      font-size: 52px;
+      margin-bottom: 20px;
+    }
+
+    /* ===== BUTTONS ===== */
+    .hero-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .hero-buttons button {
+      padding: 14px 32px;
+      border-radius: 30px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      color: white;
+      background: linear-gradient(135deg, #ff00ff, #ff6a00);
+      box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
+      transition: 0.3s;
+    }
+
+    .hero-buttons button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 30px rgba(255, 0, 255, 1);
+    }
+
+    .hero-buttons .outline {
+      background: transparent;
+      border: 2px solid #ff6a00;
+    }
+
+    /* ===== CANVAS ===== */
+    canvas {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* ===== DETAILS PANEL ===== */
+    #detailsPanel {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(6px);
+      display: none;
+      z-index: 10;
+    }
+
+    .panel-content {
+      width: 420px;
+      height: 100%;
+      background: #0f0018;
+      padding: 40px;
+      animation: slideIn .4s ease;
+      position: relative;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+
+    #closePanel {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 28px;
+      cursor: pointer;
+    }
+
+    /* ===== PDF VIEWER ===== */
+    #pdfViewer {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: none;
+      flex-direction: column;
+      z-index: 20;
+    }
+
+    .pdf-header {
+      height: 50px;
+      background: #0f0018;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    #pdfViewer iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+    }
+
+    /* ===== NEON MODAL ===== */
+    .neon-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 30;
+    }
+
+    .neon-box {
+      width: 420px;
+      background: rgba(15,0,24,.9);
+      border-radius: 20px;
+      padding: 35px;
+      text-align: center;
+      box-shadow:
+        0 0 25px rgba(255,0,255,.7),
+        0 0 60px rgba(120,0,255,.6);
+      position: relative;
+    }
+
+    .close-neon {
+      position: absolute;
+      top: 15px;
+      right: 18px;
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .neon-box h2 { color: #7aa2ff; }
+    .name { color: #ff3b3b; font-weight: bold; }
+
+/* ===== OPEN BOOK BUTTON ===== */
+#openBook {
+  margin-top: 25px;
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ff00ff, #ff6a00);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+
+  box-shadow: 0 0 18px rgba(255, 0, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+#openBook:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 0 35px rgba(255, 0, 255, 0.9);
+}
+
+#openBook:active {
+  transform: scale(0.97);
+}
+
+  </style>
+</head>
+
+<body>
+
+<!-- LOGO -->
+<div class="college-logo">
+  <img src="/college-logo.png">
+</div>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>روبوت ذكى للكشف عن الغازات والحرائق</h1>
+
+    <div class="hero-buttons">
+      <button id="openDetails">تفاصيل المشروع</button>
+      <button class="outline" id="openSupervisors">لجنة الإشراف</button>
+      <button class="outline" id="openAssistants">المعيدين المشرفين</button>
+      <button class="outline" id="openTeam">أعضاء المشروع</button>
+    </div>
+  </div>
+</section>
+
+<!-- DETAILS PANEL -->
+<div id="detailsPanel">
+  <div class="panel-content">
+    <span id="closePanel">×</span>
+
+    <h2>نظرة عامة على مشروع التخرج</h2>
+    <p>
+      مشروع التخرج الخاص بتيم 69 لنظام روبوت ذكى للكشف المبكر عن الغازات
+      والحرائق
+    </p>
+
+    <ul>
+      <li>🤖 روبوت تفاعلى ذكى</li>
+      <li>📡 حساسات غاز وحريق سريعة</li>
+      <li>🧠 تفكير منطقى وسرعة استجابة</li>
+      <li>📘 كتاب كامل لشرح كل ما يخص الروبوت</li>
+    </ul>
+
+    <button id="openBook">عرض كتاب المشروع</button>
+  </div>
+</div>
+
+
+<!-- PDF -->
+<div id="pdfViewer">
+  <div class="pdf-header">
+    <span>📘 كتاب المشروع</span>
+    <span id="closePdf">×</span>
+  </div>
+  <iframe src="https://drive.google.com/file/d/1EUYJJ7O_crZScznmeak4BP3LOXJNZkcG/preview"></iframe>
+</div>
+
+<!-- NEON MODAL -->
+<div class="neon-modal" id="neonModal">
+  <div class="neon-box">
+    <span class="close-neon" id="closeNeon">×</span>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+
+<script>
+  const panel = detailsPanel;
+  openDetails.onclick = () => panel.style.display = "block";
+  closePanel.onclick = () => panel.style.display = "none";
+
+  openBook.onclick = () => pdfViewer.style.display = "flex";
+  closePdf.onclick = () => pdfViewer.style.display = "none";
+
+  openSupervisors.onclick = () => {
+    modalContent.innerHTML = `
+       <h2>لجنة الإشراف</h2>
+        <p>
+          الأستاذ الدكتور<br>
+          <span class="name">أيمن أبو النصر</span><br>
+          أستاذ نظم المعلومات المساعد<br>
+          رئيس قسم نظم المعلومات الإدارية
+        </p>
+        <br>
+        <p>
+          الأستاذ الدكتور<br>
+          <span class="name">عبد الحميد العيسوي</span><br>
+          أستاذ المحاسبة المساعد ورئيس<br>
+          قسم المحاسبة بالمعهد
+        </p>
+      `;
+    neonModal.style.display = "flex";
+  };
+openAssistants.onclick = () => {
+  modalContent.innerHTML = `
+    <h2>المعيدين المشرفين</h2>
+
+    <div class="team-grid">
+      <div class="team-member">د/ ابراهيم الهواري</div>
+      <div class="team-member">د/ عهد بكر</div>
+    
+    </div>
+  `;
+  neonModal.style.display = "flex";
+};
+
+ openTeam.onclick = () => {
+  modalContent.innerHTML = `
+    <h2>أعضاء المشروع</h2>
+
+    <div class="team-grid">
+      <div class="team-member">أحمد باهر أحمد حسن حواس</div>
+      <div class="team-member">عبد العزيز مسعد محمد حسن سرور</div>
+
+      <div class="team-member">إسراء موسى محمد إبراهيم سالم</div>
+      <div class="team-member">سعاد ناجي عبد المجيد إبراهيم</div>
+
+      <div class="team-member">محمد شعبان غازي شعبان حمودة</div>
+      <div class="team-member">هشام أحمد منصور أحمد عوض</div>
+
+      <div class="team-member">السيد إبراهيم السيد أبو الوفا السيد</div>
+      <div class="team-member">شهد مصطفى محمد حلمي مصطفى</div>
+
+      <div class="team-member">كريم علي الزغبي علي بلال</div>
+      <div class="team-member">مروان تامر إسماعيل محمد إسماعيل</div>
+
+      <div class="team-member">أمنية محمود السيد محمد عبد المحسن</div>
+      <div class="team-member">وليد رزق رزق سيد أحمد زيدان</div>
+
+    </div>
+  `;
+  neonModal.style.display = "flex";
+};
+
+
+  closeNeon.onclick = () => neonModal.style.display = "none";
+  neonModal.onclick = e => e.target === neonModal && (neonModal.style.display="none");
+</script>
+
+</body>
+</html>
